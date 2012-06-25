@@ -158,7 +158,7 @@ public class TimerTest01Activity extends Activity {
 		//console.append("今回起動時間" + createTime + "\n");
 		console.setText("時間は\n");
 		//console.append(remainder / 1000 / 60 / 60 + "時間=\n");
-		//console.append(remainder / 1000 / 60 + "分=\n");
+		console.append(time / 1000 / 60 + "分 = ");
 		console.append(time / 1000 + "秒 = ");
 		console.append(time + "ミリ秒\n");
 		console.append("経ちました.");
