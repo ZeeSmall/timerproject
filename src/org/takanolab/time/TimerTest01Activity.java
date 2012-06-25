@@ -7,7 +7,9 @@
 
 package org.takanolab.time;
 
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -23,7 +25,7 @@ import android.widget.TextView;
 
 public class TimerTest01Activity extends Activity {
 	
-	ArrayList<MyField> nulllist;
+	//ArrayList<MyField> nulllist;
 	private static final String PREFEREMCE_NAME = "TimerTest";
 	private static final String PREFERENCE_ACT = "ACTIVATION_TIME";
 	private static final String PREFERENCE_TOTAL = "TOTAL_TIME";
@@ -41,16 +43,22 @@ public class TimerTest01Activity extends Activity {
 		// 起動時の時間
 		long createTime = System.currentTimeMillis();
 		Log.i(TAG,"create");
+		
+		OutputInputCache cache = new OutputInputCache();
+		initMap(cache);
+		
 		// ID登録
 		console = (TextView) findViewById(R.id.Console);
 		console.setText("");
 		outList = (TextView)findViewById(R.id.List);
 		outList.setText("");
 		
+		/*
 		// リスト
 		nulllist = new ArrayList<MyField>();
 		// リストに値をセット
 		setArray(nulllist);
+		*/
 		
 		// タイマー作成
 		Timer countTimer = new Timer(true);
@@ -65,8 +73,8 @@ public class TimerTest01Activity extends Activity {
 	                	// 今の時間と起動時間を計算
 	                	nowTime += 1000;
 	                	// 表示更新
-	                	PrintUtil(nowTime);
-	                	PrintList(nowTime);
+	                	//PrintUtil(nowTime);
+	                	//PrintList(nowTime);
 	                }
 	            });
 	        }
@@ -85,8 +93,8 @@ public class TimerTest01Activity extends Activity {
 		nowTime = totalTime + remainder;
 		
 		// 結果を表示
-		PrintUtil(nowTime);
-		PrintList(nowTime);
+		//PrintUtil(nowTime);
+		//PrintList(nowTime);
 	}
 
 	@Override
@@ -141,6 +149,14 @@ public class TimerTest01Activity extends Activity {
         edit.commit();
 	}
 
+	public void setMap(OutputInputCache cache,String name,InputStream is){
+		cache.setCacheMap(name, is);
+	}
+	
+	public void initMap(OutputInputCache cache){
+		cache.setCache();
+	}
+	
 	private void setArray(ArrayList<MyField> list){
 		list.add(new MyField("one",   10000));
 		list.add(new MyField("two",   20000));
@@ -164,6 +180,7 @@ public class TimerTest01Activity extends Activity {
 		console.append("経ちました.");
 	}
 	
+	/*
 	private void PrintList(long time){
 		outList.setText("生存状況\n");
 		
@@ -179,6 +196,7 @@ public class TimerTest01Activity extends Activity {
 		
 		outList.append("end.");
 	}
+	*/
 
 	/**
 	 * 値を保持するクラス

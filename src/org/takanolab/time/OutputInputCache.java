@@ -113,6 +113,18 @@ public class OutputInputCache {
 		}
 	}
 	
+	public void setCache(){
+		cacheMap.put("one", new ByteArrayInputStream("alive".getBytes()));
+		cacheMap.put("two", new ByteArrayInputStream("alive".getBytes()));
+		cacheMap.put("three", new ByteArrayInputStream("alive".getBytes()));
+		cacheMap.put("four", new ByteArrayInputStream("alive".getBytes()));
+		cacheMap.put("five", new ByteArrayInputStream("alive".getBytes()));
+		cacheMap.put("six", new ByteArrayInputStream("alive".getBytes()));
+		cacheMap.put("seven", new ByteArrayInputStream("alive".getBytes()));
+		cacheMap.put("eight", new ByteArrayInputStream("alive".getBytes()));
+		cacheMap.put("nine", new ByteArrayInputStream("alive".getBytes()));
+	}
+	
 	public InputStream isModelCache(String name){
 		if(cacheMap.containsKey(name)){
 			return cacheMap.get(name);
@@ -139,4 +151,30 @@ public class OutputInputCache {
 	public HashMap<String, InputStream> getCaheMap(){
 		return cacheMap;
 	}
+}
+class CacheCore{
+	private InputStream modelCache;
+	private long beginTime;
+	
+	public CacheCore(){
+		
+	}
+	public CacheCore(InputStream is,long time){
+		this.modelCache = is;
+		this.beginTime = time;
+	}
+	
+	public InputStream getModelCache() {
+		return modelCache;
+	}
+	public void setModelCache(InputStream modelCache) {
+		this.modelCache = modelCache;
+	}
+	public long getBeginTime() {
+		return beginTime;
+	}
+	public void setBeginTime(long beginTime) {
+		this.beginTime = beginTime;
+	}
+	
 }
