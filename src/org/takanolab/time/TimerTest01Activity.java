@@ -8,8 +8,8 @@
 package org.takanolab.time;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -26,6 +26,8 @@ import android.widget.TextView;
 public class TimerTest01Activity extends Activity {
 	
 	//ArrayList<MyField> nulllist;
+	HashMap<String, CacheCore> cache;
+	OutputInputCache oic;
 	private static final String PREFEREMCE_NAME = "TimerTest";
 	private static final String PREFERENCE_ACT = "ACTIVATION_TIME";
 	private static final String PREFERENCE_TOTAL = "TOTAL_TIME";
@@ -43,9 +45,11 @@ public class TimerTest01Activity extends Activity {
 		// 起動時の時間
 		long createTime = System.currentTimeMillis();
 		Log.i(TAG,"create");
-		
-		OutputInputCache cache = new OutputInputCache();
-		initMap(cache);
+
+		Log.d(TAG,"oic_create");
+		oic = new OutputInputCache();
+		initMap(oic);
+		//cache = oic.getCaheMap();
 		
 		// ID登録
 		console = (TextView) findViewById(R.id.Console);
@@ -73,7 +77,8 @@ public class TimerTest01Activity extends Activity {
 	                	// 今の時間と起動時間を計算
 	                	nowTime += 1000;
 	                	// 表示更新
-	                	//PrintUtil(nowTime);
+	                	PrintUtil(nowTime);
+	                	ConsoleWrite(nowTime);
 	                	//PrintList(nowTime);
 	                }
 	            });
@@ -92,8 +97,9 @@ public class TimerTest01Activity extends Activity {
 		// 累計時間を計算
 		nowTime = totalTime + remainder;
 		
+		Log.d(TAG,"console_write");
 		// 結果を表示
-		//PrintUtil(nowTime);
+		PrintUtil(nowTime);
 		//PrintList(nowTime);
 	}
 
@@ -101,6 +107,7 @@ public class TimerTest01Activity extends Activity {
 	protected void onDestroy() {
 		// 終了時間を保存
 		PreferenEdit();
+		oic.OutPutCache();
 		
 		if(deletePreference)
 			PreferenceClear();
@@ -149,24 +156,28 @@ public class TimerTest01Activity extends Activity {
         edit.commit();
 	}
 
-	public void setMap(OutputInputCache cache,String name,InputStream is){
-		cache.setCacheMap(name, is);
+	public void setModelCache(OutputInputCache cache,String name,InputStream is){
+		long time = 1000;
+		cache.setModelCache(name, new CacheCore(is, time));
+	}
+	
+	private void ConsoleWrite(long time){
+		console.setText("");
+		Iterator<String> itr = oic.getMapIterator();
+		while(itr.hasNext()){
+			String name = itr.next();
+			if(!oic.isModelCache(name)) continue;
+			CacheCore temp = oic.getModelCacheCore(name);
+			if(temp.getBeginTime() > time){
+				console.append(name + "\n" + temp.getModelCache().toString() + "\n" + temp.getBeginTime() + "\n\n");
+			}else{
+				oic.DeleteModelCache(name);
+			}
+		}
 	}
 	
 	public void initMap(OutputInputCache cache){
 		cache.setCache();
-	}
-	
-	private void setArray(ArrayList<MyField> list){
-		list.add(new MyField("one",   10000));
-		list.add(new MyField("two",   20000));
-		list.add(new MyField("three", 30000));
-		list.add(new MyField("four",  40000));
-		list.add(new MyField("five",  50000));
-		list.add(new MyField("six",   60000));
-		list.add(new MyField("seven", 70000));
-		list.add(new MyField("eight", 80000));
-		list.add(new MyField("nine",  90000));
 	}
 
 	private void PrintUtil(long time){

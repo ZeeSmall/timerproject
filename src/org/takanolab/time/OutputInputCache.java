@@ -1,12 +1,12 @@
 package org.takanolab.time;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -15,124 +15,31 @@ import android.util.Log;
 public class OutputInputCache {
 
 	private static final String TAG = "OutputInputCahe";
-	private HashMap<String, InputStream> cacheMap = new HashMap<String, InputStream>();
-	private HashMap<String, String> tempMap = new HashMap<String, String>();
-	private String path = "/sdcard/modeldata/3dcgmodelcache.txt";
-
-	public OutputInputCache(){
-			InputCacheFile();
-	}
+	private HashMap<String, CacheCore> cacheMap = new HashMap<String, CacheCore >();
+	//private HashMap<String, String> tempMap = new HashMap<String, String>();
+	private String path = "/sdcard/modeldata/3dcgmodel.obj";
 
 	@SuppressWarnings("unchecked")
-	public void InputCacheFile(){
-		Log.d(TAG,"Input Start");
-		try{
-			File inputFile = new File(path);
-			if(inputFile.exists()){
-				// InputStream作成
-				FileInputStream fis = new FileInputStream(inputFile);
-				ObjectInputStream ois = new ObjectInputStream(fis);
-
-				// oisからオブジェクトを入力。
-				tempMap = (HashMap<String, String>) ois.readObject();
-				Iterator<String> itr = tempMap.keySet().iterator();
-
-				// 中身を取り出しcacheに格納
-				while(itr.hasNext()){
-					String key = itr.next();
-					InputStream tempIs = new ByteArrayInputStream(tempMap.get(key).getBytes());
-					cacheMap.put(key, tempIs);
-				}
-
-				// 入力ストリームを閉じる。
-				fis.close();
-				ois.close();
-			}else{
-				inputFile.createNewFile();
-			}
-		}catch (Exception e) {
-			Log.e(TAG,e.toString());
-		}finally{
-			Log.d(TAG,"Input End");
-		}
+	public OutputInputCache(){
+		cacheMap = (HashMap<String, CacheCore>) read_object(path);
 	}
 
-	public void OutputCacheFile(){
-		Log.d(TAG,"Output Start");
-		try{
-			// 出力ストリームの生成。
-			FileOutputStream fos = new FileOutputStream(path);
-			ObjectOutputStream oos = new ObjectOutputStream(fos);
-			// マップクリア
-			tempMap.clear();
-			Iterator<String> itr = cacheMap.keySet().iterator();
-			
-			// 中身を取り出しtempMapへ格納
-			while(itr.hasNext()){
-				String key = itr.next();
-				tempMap.put(key,cacheMap.get(key).toString());
-			}
-			
-			// マップを整列化し、oosに書き込む
-			oos.writeObject(tempMap);
-			// 出力ストリームを閉じる。
-			fos.close();
-			oos.close();
-		}catch (Exception e) {
-			Log.e(TAG,e.toString());
-		}finally{
-			Log.d(TAG,"Output End");
-		}
-	}
-
-	public void OutputCacheFile(HashMap<String, ?> map){
-		Log.d(TAG,"Output Start");
-		try{
-			// 出力ストリームの生成。
-			FileOutputStream fos = new FileOutputStream(path);
-			ObjectOutputStream oos = new ObjectOutputStream(fos);
-			// マップクリア
-			tempMap.clear();
-			Iterator<String> itr = map.keySet().iterator();
-			
-			// 中身を取り出しtempMapへ格納
-			while(itr.hasNext()){
-				String key = itr.next();
-				tempMap.put(key,map.get(key).toString());
-			}
-			
-			// マップを整列化し、oosに書き込む
-			oos.writeObject(tempMap);
-			// 出力ストリームを閉じる。
-			fos.close();
-			oos.close();
-		}catch (Exception e) {
-			Log.e(TAG,e.toString());
-		}finally{
-			Log.d(TAG,"Output End");
-		}
+	public void OutPutCache(){
+		write_object(cacheMap, path);
 	}
 	
 	public void setCache(){
-		cacheMap.put("one", new ByteArrayInputStream("alive".getBytes()));
-		cacheMap.put("two", new ByteArrayInputStream("alive".getBytes()));
-		cacheMap.put("three", new ByteArrayInputStream("alive".getBytes()));
-		cacheMap.put("four", new ByteArrayInputStream("alive".getBytes()));
-		cacheMap.put("five", new ByteArrayInputStream("alive".getBytes()));
-		cacheMap.put("six", new ByteArrayInputStream("alive".getBytes()));
-		cacheMap.put("seven", new ByteArrayInputStream("alive".getBytes()));
-		cacheMap.put("eight", new ByteArrayInputStream("alive".getBytes()));
-		cacheMap.put("nine", new ByteArrayInputStream("alive".getBytes()));
+		cacheMap.put("one",   new CacheCore(new ByteArrayInputStream("alive".getBytes()),10000));
+		cacheMap.put("two",   new CacheCore(new ByteArrayInputStream("alive".getBytes()),20000));
+		cacheMap.put("three", new CacheCore(new ByteArrayInputStream("alive".getBytes()),30000));
+		cacheMap.put("four",  new CacheCore(new ByteArrayInputStream("alive".getBytes()),40000));
+		cacheMap.put("five",  new CacheCore(new ByteArrayInputStream("alive".getBytes()),50000));
+		cacheMap.put("six",   new CacheCore(new ByteArrayInputStream("alive".getBytes()),60000));
+		cacheMap.put("seven", new CacheCore(new ByteArrayInputStream("alive".getBytes()),70000));
+		cacheMap.put("eight", new CacheCore(new ByteArrayInputStream("alive".getBytes()),80000));
+		cacheMap.put("nine",  new CacheCore(new ByteArrayInputStream("alive".getBytes()),90000));
 	}
-	
-	public InputStream isModelCache(String name){
-		if(cacheMap.containsKey(name)){
-			return cacheMap.get(name);
-		}else{
-			return null;
-		}
-	}
-	
+
 	public boolean isCacheMap(){
 		if(cacheMap != null){
 			return true;
@@ -140,30 +47,95 @@ public class OutputInputCache {
 			return false;
 		}
 	}
-	
-	public void setCacheMap(String name,InputStream is){
-		cacheMap.put(name, is);
+	public boolean isModelCache(String name){
+		if(cacheMap.containsKey(name)){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	public int getSize(){
+		return cacheMap.size();
+	}
+
+	public void setModelCache(String name,CacheCore cc){
+		cacheMap.put(name, cc);
+	}
+
+	public CacheCore getModelCacheCore(String name){
+		if(cacheMap.containsKey(name)){
+			return cacheMap.get(name);
+		}else{
+			return null;
+		}
+	}
+	public boolean DeleteModelCache(String name){
+		try{
+			cacheMap.remove(name);
+			return true;
+		}catch(Exception e){
+			e.printStackTrace();
+			return false;
+		}
 	}
 	public void clearCacheMap(){
 		cacheMap.clear();
 	}
 
-	public HashMap<String, InputStream> getCaheMap(){
+	public HashMap<String, CacheCore> getCaheMap(){
 		return cacheMap;
 	}
+	public Iterator<String> getMapIterator(){
+		return cacheMap.keySet().iterator();
+	}
+
+	public static boolean write_object(Object obj,String file){
+		try {
+			FileOutputStream outFile = new FileOutputStream(file);
+			ObjectOutputStream out = new ObjectOutputStream(outFile);
+			out.writeObject(obj);
+			out.close();
+			outFile.close();
+		} catch(Exception e) {
+			Log.d(TAG,"write");
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+
+	public static Object read_object(String file){
+		Object obj=new Object();
+		try {
+			FileInputStream inFile = new FileInputStream(file);
+			ObjectInputStream in = new ObjectInputStream(inFile);
+			obj = in.readObject();
+			in.close();
+			inFile.close();
+		} catch(Exception e) {
+			Log.d(TAG,"read");
+			e.printStackTrace();
+		}
+		return obj;
+	}
+
 }
-class CacheCore{
-	private InputStream modelCache;
+class CacheCore implements Serializable{
+
+	private static final long serialVersionUID = 1L;
+	private transient InputStream modelCache;
+	private String modelCachetoString;
 	private long beginTime;
-	
+
 	public CacheCore(){
-		
+
 	}
 	public CacheCore(InputStream is,long time){
 		this.modelCache = is;
 		this.beginTime = time;
+		changeInputStream();
 	}
-	
+
 	public InputStream getModelCache() {
 		return modelCache;
 	}
@@ -176,5 +148,19 @@ class CacheCore{
 	public void setBeginTime(long beginTime) {
 		this.beginTime = beginTime;
 	}
-	
+
+	public boolean isModelCache(){
+		if(this.modelCache != null){
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	public void changeInputStream(){
+		modelCachetoString = modelCache.toString();
+	}
+	public void changeString(){
+		modelCache = new ByteArrayInputStream(modelCachetoString.getBytes());
+	}
 }
